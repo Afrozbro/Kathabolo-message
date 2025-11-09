@@ -22,7 +22,7 @@ export default function Page() {
   // ✅ Redirect to login if not signed in
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.replace("/login");
+      router.replace("/signin");
     }
   }, [status, router]);
 
