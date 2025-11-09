@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect,Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { Puff } from "react-loader-spinner";
@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 
-const Page = () => {
+function WriteMessageContent() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const searchParams = useSearchParams();
@@ -375,5 +375,14 @@ const Page = () => {
     </div>
   );
 };
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="text-white p-10">Loading chat...</div>}>
+      <WriteMessageContent />
+    </Suspense>
+  );
+}
+
 
 export default Page;
