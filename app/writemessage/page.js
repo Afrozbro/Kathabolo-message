@@ -1,12 +1,14 @@
+
+
 "use client";
-import React, { useState, useRef, useEffect,Suspense } from "react";
-import { useSearchParams } from "next/navigation";
-import { signIn, signOut, useSession } from "next-auth/react";
+import React, { useState, useRef, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Puff } from "react-loader-spinner";
-import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 
+// 🟢 This is your actual page content logic
 function WriteMessageContent() {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -14,10 +16,27 @@ function WriteMessageContent() {
   const reciver = searchParams.get("reciver");
   const sender = searchParams.get("sender");
   const [messagehistory, setmessagehistory] = useState([]);
-
   const message = useRef();
   const bottomRef = useRef();
 
+  const [userdetail, setUserdetail] = useState({
+    username: "",
+    name: "",
+    email: "",
+    profileicon: "",
+  });
+
+  const [dp, setDp] = useState(null);
+  const [showPopup, setShowPopup] = useState(false);
+  const [detitem, setdetitem] = useState(null);
+  const [dltpopup, setdltpopup] = useState(false);
+
+  // ✅ Redirect if not logged in
+  useEffect(() => {
+    if (!session) router.push("/signin");
+  }, [session]);
+
+  // ✅ Fetch messages
   useEffect(() => {
     const fetchMessages = async () => {
       try {
@@ -25,60 +44,38 @@ function WriteMessageContent() {
           `/api/sendmessage?sender=${sender}&reciver=${reciver}`
         );
         const data = await res.json();
-
-        if (data.success) {
-          setmessagehistory(data.messages); // ✅ Correct way to update state
-        }
+        if (data.success) setmessagehistory(data.messages);
       } catch (err) {
         console.error("Error fetching messages:", err);
       }
     };
 
-    // 🟢 Fetch immediately once
     fetchMessages();
-
-    // 🟢 Then repeat every 5 seconds
     const interval = setInterval(fetchMessages, 5000);
-
-    // 🧹 Cleanup on unmount
     return () => clearInterval(interval);
   }, [sender, reciver]);
 
+  // ✅ Send message
   const send = async () => {
     const sharemessage = message.current.value.trim();
-
     if (!sharemessage) {
       toast.error("Please enter a message");
       return;
     }
 
-    // ✅ Create message object properly
     const mymessage = { sender, reciver, sharemessage, seen: false };
-
-    // ✅ Send to backend
     const res = await fetch("/api/sendmessage", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(mymessage), // not {mymessage}
+      body: JSON.stringify(mymessage),
     });
 
     const data = await res.json();
-
-    if (data.success) {
-      // alert("Message saved successfully!");
-      message.current.value = "";
-    } else {
-      toast.error("message is not send");
-      console.error(data.error);
-    }
+    if (data.success) message.current.value = "";
+    else toast.error("Message not sent");
   };
-  useEffect(() => {
-    if (!session) {
-      router.push("/signin");
-    }
-  }, []);
 
-  //delete message
+  // ✅ Delete message
   const deleteMessage = async (id) => {
     try {
       const res = await fetch("/api/delmess", {
@@ -88,70 +85,51 @@ function WriteMessageContent() {
       });
 
       const data = await res.json();
-      console.log("🧩 Delete response:", data);
-
       if (res.ok) {
-        // ✅ Update UI
         setdltpopup(false);
         setdetitem(null);
-        toast.success("✅ message successfully deleted");
+        toast.success("✅ Message deleted");
       } else {
-        toast.error("✅ message is not delete");
+        toast.error("❌ Message not deleted");
       }
     } catch (err) {
-      toast.error("✅ message is not delete");
+      toast.error("❌ Message not deleted");
     }
   };
 
+  // ✅ Scroll to bottom when new messages arrive
   useEffect(() => {
-    // Scroll to bottom whenever `messages` change
     bottomRef.current?.scrollIntoView({ behavior: "auto" });
   }, [messagehistory]);
 
-  //for seen all messages
+  // ✅ Mark unseen messages as seen
   useEffect(() => {
     const markUnseenAsSeen = async () => {
-      // Replace 'userdetail.username' with your actual logged-in username variable
       const unseenMessages = messagehistory.filter(
         (msg) => msg.sender !== sender && !msg.seen
       );
-
-      console.log("Unseen messages:", unseenMessages);
-
       if (unseenMessages.length > 0) {
         try {
           await fetch("/api/updateseen", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              messages: unseenMessages, // send unseen message array
-            }),
+            body: JSON.stringify({ messages: unseenMessages }),
           });
-          // console.log("✅ Marked unseen messages as seen");
         } catch (error) {
-          console.error("❌ Error updating seen:", error);
+          // console.error("❌ Error updating seen:", error);
         }
       }
     };
-
     markUnseenAsSeen();
   }, [messagehistory]);
 
-  const [userdetail, setUserdetail] = useState({
-    username: "",
-    name: "",
-    email: "",
-    profileicon: "",
-  });
-  //find profile picture
+  // ✅ Fetch receiver details
   const fetchUserdetils = async (reciver) => {
     try {
       const res = await fetch(
         `/api/userbyusername?username=${encodeURIComponent(reciver)}`
       );
-      console.log(`this is : ${reciver}`);
       const data = await res.json();
-
       if (!res.ok) {
         router.push("/createaccount");
         return null;
@@ -162,17 +140,16 @@ function WriteMessageContent() {
         email: data.user.email,
         profileicon: data.user.profileicon || "",
       });
-      console.log(userdetail.name);
-      return data.username;
     } catch (err) {
-      console.error("Error fetching user:", err);
+      // console.error("Error fetching user:", err);
     }
   };
+
   useEffect(() => {
     fetchUserdetils(reciver);
   }, [messagehistory]);
 
-  //reply section
+  // ✅ Reply feature
   const Reply = (msg) => {
     if (msg.startsWith("Reply")) {
       let repvalue = `Reply: ${msg.split("-")[1]?.trim()} :-`;
@@ -183,20 +160,14 @@ function WriteMessageContent() {
     }
   };
 
-  //show dp
-  const [dp, setDp] = useState(null); // store dp URL
-  const [showPopup, setShowPopup] = useState(false);
+  // ✅ Show / hide image popup
   const showdp = (e) => {
     setDp(e);
     setShowPopup(true);
   };
+  const closepop = () => setShowPopup(false);
 
-  const closepop = () => {
-    setShowPopup(false);
-  };
-  const [detitem, setdetitem] = useState(null);
-  const [dltpopup, setdltpopup] = useState(false);
-
+  // ✅ Delete popup controls
   const showdltpopup = (id) => {
     setdetitem(id);
     setdltpopup(true);
@@ -206,6 +177,7 @@ function WriteMessageContent() {
     setdetitem(null);
   };
 
+  // ✅ Loading spinner
   if (status === "loading") {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -220,25 +192,24 @@ function WriteMessageContent() {
     );
   }
 
+  // ✅ Main UI
   return (
-    <div className="relative h-[50vh]  text-white">
+    <div className="relative h-[50vh] text-white">
+      {/* Profile Picture Popup */}
       <div
         className={`absolute z-100 h-[90%] lg:h-[100%] w-[90%] lg:w-[25%] 
-  left-[5%] lg:left-[35%] top-[30%] md:h-[100%]
-  bg-black/70 rounded-2xl shadow-2xl flex items-center justify-center
-  transform transition-all duration-300 ease-out
-  ${
-    showPopup
-      ? "scale-100 opacity-100"
-      : "scale-90 opacity-0 pointer-events-none"
-  }`}
+          left-[5%] lg:left-[35%] top-[30%] bg-black/70 rounded-2xl shadow-2xl flex items-center justify-center
+          transform transition-all duration-300 ease-out ${
+            showPopup
+              ? "scale-100 opacity-100"
+              : "scale-90 opacity-0 pointer-events-none"
+          }`}
       >
         <img
           className="h-full w-full rounded-2xl object-cover"
           alt=""
           srcSet={dp}
         />
-
         <div className="absolute top-2 right-2">
           <img
             onClick={closepop}
@@ -248,33 +219,38 @@ function WriteMessageContent() {
           />
         </div>
       </div>
-      <div>
-        <div
-          className={`deletemsg h-[10vh] w-[90vw] md:w-[20vw] bg-gradient-to-br from-slate-900 to-blue-700 absolute top-[50%] left-[40%] rounded-full  items-center flex-col justify-around ${
-            dltpopup ? "flex" : "hidden"
-          }  `}
-        >
-          <h1 className="text-2xl font-bold">Delete this message</h1>
-          <div className="flex items-center justify-around">
-            <button
-              onClick={() => {
-                deleteMessage(detitem);
-              }}
-              type="button"
-              className="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-full border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 cursor-pointer"
-            >
-              Delete
-            </button>
-            <button
-              onClick={hidedltpopup}
-              type="button"
-              className="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-full border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 cursor-pointer"
-            >
-              Cancle
-            </button>
-          </div>
-        </div>
-      </div>
+
+      {/* Delete confirmation popup */}
+<div
+  className={`deletemsg fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+  h-auto min-h-[18vh] w-[90vw] sm:w-[70vw] md:w-[45vw] lg:w-[25vw]
+  bg-gradient-to-br from-slate-900 to-blue-700 
+  rounded-2xl shadow-lg p-5 flex flex-col items-center justify-center gap-4 
+  ${dltpopup ? "flex" : "hidden"}`}
+>
+  <h1 className="text-xl md:text-2xl font-semibold text-white text-center">
+    Delete this message?
+  </h1>
+
+  <div className="flex items-center justify-center gap-6 w-full mt-2">
+    <button
+      onClick={() => deleteMessage(detitem)}
+      className="py-2.5 px-6 text-sm md:text-base font-medium bg-white rounded-full hover:bg-gray-100 text-gray-900 transition-all"
+    >
+      Delete
+    </button>
+    <button
+      onClick={hidedltpopup}
+      className="py-2.5 px-6 text-sm md:text-base font-medium bg-white rounded-full hover:bg-gray-100 text-gray-900 transition-all"
+    >
+      Cancel
+    </button>
+  </div>
+</div>
+
+
+
+      {/* Chat section */}
       <div
         className={`${
           showPopup
@@ -283,62 +259,59 @@ function WriteMessageContent() {
         }`}
       >
         {/* Header */}
-        <div className="h-[7vh]  sticky top-0 z-50 relative p-2 rounded-2xl bg-slate-800 flex items-center justify-around">
-          <div className="profile flex items-center md:justify-center gap-2.5 overflow-x-hidden">
+        <div className="h-[7vh] sticky top-0 z-50 p-2 rounded-2xl bg-slate-800 flex items-center justify-around">
+          <div className="profile flex items-center gap-2.5">
             <img
-              onClick={() => {
-                showdp(userdetail.profileicon);
-              }}
-              className="h-[45px] cursor-pointer md:h-[50px] md:w-[50px] rounded-full"
+              onClick={() => showdp(userdetail.profileicon)}
+              className="h-[45px] md:h-[50px] md:w-[50px] rounded-full cursor-pointer"
               alt="profile-icon"
               srcSet={userdetail.profileicon}
             />
             <div className="username text-2xl font-bold">{reciver}</div>
           </div>
         </div>
-        <div className="mess h-[75vh] w-full overflow-y-scroll overflow-x-hidden scrollbar-thin scrollbar-thumb-blue  flex flex-col gap-2.5 my-2.5">
+
+        {/* Messages */}
+        <div className="mess h-[75vh] w-full overflow-y-scroll overflow-x-hidden scrollbar-thin scrollbar-thumb-blue flex flex-col gap-2.5 my-2.5">
           {messagehistory.length > 0 ? (
             messagehistory.map((msg) => {
-              const isMe = msg.sender === sender; // ✅ Check if I sent it
+              const isMe = msg.sender === sender;
               return (
                 <li
                   key={msg._id}
-                  className={`list-none p-2  rounded-lg w-fit max-w-[70%] ${
+                  className={`list-none p-2 rounded-lg w-fit max-w-[70%] ${
                     isMe
-                      ? "self-end bg-blue-600 text-white" // my message (right side)
-                      : "self-start bg-slate-900 text-gray-200" // received message (left side)
+                      ? "self-end bg-blue-600 text-white"
+                      : "self-start bg-slate-900 text-gray-200"
                   }`}
                 >
                   {msg.sharemessage}{" "}
                   {isMe && (
                     <button
                       onClick={() => showdltpopup(msg._id)}
-                      className=" -right-2  group-hover:flex bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition"
+                      className="bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition"
                     >
                       <Trash2 className="cursor-pointer" size={14} />
                     </button>
                   )}
                   {!isMe && (
                     <img
-                      onClick={() => {
-                        Reply(msg.sharemessage);
-                      }}
-                      className="h-[25px]  relative -top-[50%] left-[105%]"
+                      onClick={() => Reply(msg.sharemessage)}
+                      className="h-[25px] relative -top-[50%] left-[105%]"
                       alt=""
                       srcSet="reply.svg"
                     />
                   )}
-                  <div className=" flex justify-end gap-5">
-                    <p className="text-[10px] flex items-center justify-end">
+                  <div className="flex justify-end gap-5">
+                    <p className="text-[10px]">
                       {new Date(msg.timestamp).toLocaleTimeString("en-IN", {
                         hour12: true,
                         timeZone: "Asia/Kolkata",
                       })}
                     </p>
-                    <p className="text-[10px] flex items-center justify-end">
+                    <p className="text-[10px]">
                       {new Date(msg.timestamp).toLocaleDateString("en-IN")}
                     </p>
-
                     {isMe &&
                       (msg.seen ? (
                         <img className="h-[15px]" alt="" srcSet="seen.svg" />
@@ -352,10 +325,10 @@ function WriteMessageContent() {
           ) : (
             <p className="text-gray-400 text-center">No messages yet...</p>
           )}
-          <div ref={bottomRef} className="h-[10px]"></div>
+          <div ref={bottomRef} className="h-[10px]" />
         </div>
 
-        {/* Message Input */}
+        {/* Input */}
         <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[100%] md:w-[80%] bg-sky-950 rounded-full flex items-center px-2 py-2 shadow-lg">
           <input
             type="text"
@@ -374,15 +347,16 @@ function WriteMessageContent() {
       </div>
     </div>
   );
-};
+}
 
+// 🟡 Page wrapper with Suspense boundary
 export default function Page() {
   return (
-    <Suspense fallback={<div className="text-white p-10">Loading chat...</div>}>
+    <Suspense fallback={<div>Loading chat...</div>}>
       <WriteMessageContent />
     </Suspense>
   );
 }
 
-
-
+// 🟢 Force dynamic rendering
+export const dynamic = "force-dynamic";
