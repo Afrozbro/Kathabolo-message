@@ -235,13 +235,13 @@ function WriteMessageContent() {
   <div className="flex items-center justify-center gap-6 w-full mt-2">
     <button
       onClick={() => deleteMessage(detitem)}
-      className="py-2.5 px-6 text-sm md:text-base font-medium bg-white rounded-full hover:bg-gray-100 text-gray-900 transition-all"
+      className="py-2.5 cursor-pointer px-6 text-sm md:text-base font-medium bg-white rounded-full hover:bg-gray-100 text-gray-900 transition-all"
     >
       Delete
     </button>
     <button
       onClick={hidedltpopup}
-      className="py-2.5 px-6 text-sm md:text-base font-medium bg-white rounded-full hover:bg-gray-100 text-gray-900 transition-all"
+      className="py-2.5 cursor-pointer px-6 text-sm md:text-base font-medium bg-white rounded-full hover:bg-gray-100 text-gray-900 transition-all"
     >
       Cancel
     </button>
