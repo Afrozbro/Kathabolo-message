@@ -34,7 +34,7 @@ const page = () => {
   };
 
   const finduser = async () => {
-    const username = finduserref.current.value;
+    const username = finduserref.current.value.toLowerCase();
     // console.log(username);
     if (!username) {
       toast.error("Enter username");
@@ -111,7 +111,7 @@ const page = () => {
   }, [session]);
 
   const writemessage = () => {
-    const reciver = finduserref.current.value;
+    const reciver = finduserref.current.value.toLowerCase();
     const sender = userdetail.username;
 
     router.push(`/writemessage?sender=${sender}&reciver=${reciver}`);
