@@ -61,6 +61,22 @@ export default function Home() {
               </span>
             </button>
           </div>
+                   <div className="mx-auto flex flex-col gap-5 items-center justify-center my-5 px-3">
+            <h1 className="font-bold text-2xl text-center">
+              How to Create an Account
+            </h1>
+
+            <div className="w-full max-w-2xl aspect-video rounded-xl overflow-hidden shadow-md">
+              <iframe
+                className="w-full h-full"
+                src="https://www.youtube.com/embed/wT7Ii5GZhPo?si=AHNtL-J9G36y6hvI"
+                title="YouTube video player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allowFullScreen
+              ></iframe>
+            </div>
+          </div>
         </div>
       </>
     );
