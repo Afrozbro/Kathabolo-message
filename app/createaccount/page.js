@@ -21,7 +21,7 @@ export default function Page() {
     username: "",
   });
   const [isChecked, setIsChecked] = useState(false);
-  const handleCheckboxChange = (e) => setIsChecked(e.target.checked)
+  const handleCheckboxChange = (e) => setIsChecked(e.target.checked);
 
   //if user login then go the message page
 
@@ -91,7 +91,6 @@ export default function Page() {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-  
 
   // ✅ Submit form logic
   const handleSubmit = async (e) => {
@@ -114,71 +113,58 @@ export default function Page() {
 
     // Validate username check
     if (check === null) {
-     
-       toast.error("Please check your username first.");
+      toast.error("Please check your username first.");
       return;
     }
 
     if (!check) {
-      
-       toast.error("Username is not available. Please choose another.");
+      toast.error("Username is not available. Please choose another.");
       return;
     }
-    if(isChecked){
+    if (isChecked) {
+      // ✅ If all good
+      // console.log("Form submitted:", formData);
 
-    // ✅ If all good
-    // console.log("Form submitted:", formData);
+      // Example: send data to backend
 
-    // Example: send data to backend
+      const res = await fetch("/api/saveuser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(finalData),
+      });
 
-    const res = await fetch("/api/saveuser", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(finalData),
-    });
+      const result = await res.json().catch(() => ({}));
 
-    const result = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        // Show clear error to the user (duplicate or server error)
+        // alert(result.message || "Failed to create account. Try again.");
+        toast.error("Failed to create account. Try again.");
+        // console.error("Save user failed:", result);
+        return;
+      }
 
-    if (!res.ok) {
-      // Show clear error to the user (duplicate or server error)
-      // alert(result.message || "Failed to create account. Try again.");
-       toast.error("Failed to create account. Try again.");
-      // console.error("Save user failed:", result);
-      return;
+      // Success — redirect to yourmessage so the saved profile is fetched and displayed
+      router.replace("/yourmessage");
+
+      // Reset form (kept for cleanliness, though we redirect)
+      setFormData({
+        name: "",
+        email: session?.user?.email || "",
+        username: "",
+        profileicon: "",
+      });
+
+      setCheck(null);
+    } else {
+      toast.error("accept the terms and conditions");
     }
-
-    // Success — redirect to yourmessage so the saved profile is fetched and displayed
-    router.replace("/yourmessage");
-
-    // Reset form (kept for cleanliness, though we redirect)
-    setFormData({
-      name: "",
-      email: session?.user?.email || "",
-      username: "",
-      profileicon: "",
-    });
-
-    setCheck(null);
-    
-  }
-  else{
-    toast.error("accept the terms and conditions")
-  }
- 
-
   };
-
-
-
-
-
 
   const usercheck = async () => {
     const username = usernameRef.current.value.trim();
     const mainusername = username.toLowerCase();
     if (!username) {
-    
-       toast.error("Enter username");
+      toast.error("Enter username");
       return;
     }
 
@@ -190,29 +176,29 @@ export default function Page() {
 
       if (!res.ok) {
         console.error("Error:", data.message);
-     
-         toast.error("Server error, try again later");
+
+        toast.error("Server error, try again later");
         return;
       }
 
       if (data.exists) {
         // ❌ username already taken
         setCheck(false);
-   
-         toast.error("Username already taken");
+
+        toast.error("Username already taken");
       } else {
         // ✅ username available
         setCheck(true);
 
-        toast.success("Username available")
+        toast.success("Username available");
       }
     } catch (err) {
       // console.error("Error fetching user:", err);
     }
   };
-  const terms=()=>{
-    router.push("/terms&conditions")
-  }
+  const terms = () => {
+    router.push("/terms&conditions");
+  };
 
   // ✅ Only show the form when session exists
   if (session) {
@@ -256,14 +242,27 @@ export default function Page() {
               <label className="block mb-1" htmlFor="profileicon">
                 Profile Icon Direct Link:
               </label>
-              <input
-                type="text"
-                id="profileicon"
-                name="profileicon"
-                value={formData.profileicon}
-                onChange={handleChange}
-                className="w-full p-2 rounded bg-gray-800 text-white border border-gray-600"
-              />
+              <div className="flex gap-1.5">
+                <input
+                  type="text"
+                  placeholder="Blank / Direct link"
+                  id="profileicon"
+                  name="profileicon"
+                  value={formData.profileicon}
+                  onChange={handleChange}
+                  className="w-full p-2 rounded bg-gray-800 text-white border border-gray-600"
+                />
+                <div className="flex items-center justify-center">
+                  <a href="https://imgbb.com/">
+                    <button
+                      type="button"
+                      className="text-white cursor-pointer bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                    >
+                      Create Link
+                    </button>
+                  </a>
+                </div>
+              </div>
             </div>
 
             <div>
@@ -293,16 +292,28 @@ export default function Page() {
                 <button
                   type="button"
                   onClick={usercheck}
-
-                  className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                  className="text-white cursor-pointer bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
                 >
                   check
                 </button>
               </div>
             </div>
             <div className="flex gap-1.5">
-              <input checked={isChecked}  onChange={handleCheckboxChange} className=" h-[25px] w-[25px]" type="checkbox" name="trams & condiction" id="" />
-              <h1 className="text-indigo-200">I read all <span onClick={terms} className="text-blue-300 cursor-pointer">terms & conditions </span> and i accept it.</h1>
+              <input
+                checked={isChecked}
+                onChange={handleCheckboxChange}
+                className=" h-[25px] w-[25px]"
+                type="checkbox"
+                name="trams & condiction"
+                id=""
+              />
+              <h1 className="text-indigo-200">
+                I read all{" "}
+                <span onClick={terms} className="text-blue-300 cursor-pointer">
+                  terms & conditions{" "}
+                </span>{" "}
+                and i accept it.
+              </h1>
             </div>
 
             <button
