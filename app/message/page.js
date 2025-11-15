@@ -59,6 +59,16 @@ export default function Page() {
   if (status === "loading" || !email) {
     return (
       <div className="flex items-center justify-center min-h-screen text-xl text-gray-200">
+        <title>Kathabolo App - Checking Your Account</title>
+      <meta
+        name="description"
+        content="Kathabolo is a smart chatting and talking app that helps you connect instantly. Fast, secure, simple.checking your account..."
+      />
+      <meta
+        name="keywords"
+        content="kathabolo, chat app, talking app, messaging app, kathabolo beta, kathabolo netlify"
+      />
+      <meta name="author" content="Kathabolo Team" />
         Checking your account...
       </div>
     );
@@ -66,6 +76,16 @@ export default function Page() {
 
   return (
     <div className="flex items-center justify-center min-h-screen text-lg text-gray-300">
+     <title>Kathabolo App - Chat, Talk & Connect Easily</title>
+      <meta
+        name="description"
+        content="Kathabolo is a smart chatting and talking app that helps you connect instantly. Fast, secure, simple.account finding. Try Kathabolo today!"
+      />
+      <meta
+        name="keywords"
+        content="kathabolo, chat app, talking app, messaging app, kathabolo beta, kathabolo netlify"
+      />
+      <meta name="author" content="Kathabolo Team" />
       Redirecting based on your account...
     </div>
   );
