@@ -34,6 +34,16 @@ const Page = () => {
   if (!session) {
     return (
       <div className="flex items-center justify-center min-h-screen">
+       <title>Kathabolo App - Sign In</title>
+      <meta
+        name="description"
+        content="Kathabolo is a smart chatting and talking app that helps you connect instantly. Fast, secure, simple.sign in to get started!"
+      />
+      <meta
+        name="keywords"
+        content="kathabolo, chat app, talking app, messaging app, kathabolo beta, kathabolo netlify"
+      />
+      <meta name="author" content="Kathabolo Team" />
         <div className="flex mx-auto flex-col items-center justify-center gap-3.5 w-[90%] md:w-[50%]">
           <h1 className="text-white text-4xl font-bold mb-4">
             Welcome to Kathabolo
