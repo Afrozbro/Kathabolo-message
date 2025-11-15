@@ -293,6 +293,16 @@ setdeletepopup(true)
 
   return (
     <div className=" w-full min-h-screen ">
+     <title>Kathabolo App - See your All Chats</title>
+      <meta
+        name="description"
+        content="Kathabolo is a smart chatting and talking app that helps you connect instantly. Fast, secure, simple. Try Kathabolo today!"
+      />
+      <meta
+        name="keywords"
+        content="kathabolo, chat app, talking app, messaging app, kathabolo beta, kathabolo netlify"
+      />
+      <meta name="author" content="Kathabolo Team" />
       <div
         className={`absolute z-100 h-[45%] lg:h-[50%] w-[90%] lg:w-[25%] md:w-[50%] md:h-[50%]
   left-[5%] lg:left-[35%] top-[30%] md:left-[25%]
