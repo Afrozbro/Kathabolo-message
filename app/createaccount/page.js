@@ -204,6 +204,16 @@ export default function Page() {
   if (session) {
     return (
       <div className="flex items-center justify-center min-h-screen">
+       <title>Kathabolo App - Create Account</title>
+      <meta
+        name="description"
+        content="Kathabolo is a smart chatting and talking app that helps you connect instantly. Fast, secure, simple. Create your account with Kathabolo today!"
+      />
+      <meta
+        name="keywords"
+        content="kathabolo, chat app, talking app, messaging app, kathabolo beta, kathabolo netlify"
+      />
+      <meta name="author" content="Kathabolo Team" />
         <div className="bg-gradient-to-r from-gray-900 to-gray-700 p-6 rounded-3xl shadow-xl text-white w-full max-w-md">
           <h1 className="text-center font-bold text-3xl mb-6">
             Create your account
