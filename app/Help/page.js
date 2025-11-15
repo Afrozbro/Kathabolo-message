@@ -5,6 +5,16 @@ import React from "react";
 export default function HelpPage() {
   return (
     <div className="min-h-screen  text-gray-200 px-6 py-10 md:px-20">
+    <title>Kathabolo App - Help & Features</title>
+      <meta
+        name="description"
+        content="How to use Kathabolo - A smart chatting and talking app that helps you connect instantly. Fast, secure, simple. Try Kathabolo today!"
+      />
+      <meta
+        name="keywords"
+        content="kathabolo, chat app, talking app, messaging app, kathabolo beta, kathabolo netlify"
+      />
+      <meta name="author" content="Kathabolo Team" />
       <div className="max-w-4xl mx-auto bg-gray-900/60 backdrop-blur-md p-8 rounded-2xl shadow-lg border border-gray-800">
         <h1 className="text-4xl font-extrabold text-white mb-6 text-center">
           Help & Features
