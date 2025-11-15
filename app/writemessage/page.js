@@ -196,6 +196,16 @@ function WriteMessageContent() {
   return (
     <div className="relative h-[50vh] text-white">
       {/* Profile Picture Popup */}
+     <title>Kathabolo App - Write Message</title>
+      <meta
+        name="description"
+        content="Kathabolo is a smart chatting and talking app that helps you connect instantly. Fast, secure, simple. Write messages with Kathabolo today!"
+      />
+      <meta
+        name="keywords"
+        content="kathabolo, chat app, talking app, messaging app, kathabolo beta, kathabolo netlify"
+      />
+      <meta name="author" content="Kathabolo Team" />
       <div
         className={`absolute z-100 h-[90%] lg:h-[100%] w-[90%] lg:w-[25%] 
           left-[5%] lg:left-[35%] top-[30%] bg-black/70 rounded-2xl shadow-2xl flex items-center justify-center
