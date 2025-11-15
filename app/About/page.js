@@ -6,6 +6,16 @@ import { motion } from "framer-motion";
 export default function AboutPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center  text-white px-6 py-12">
+      <title>Kathabolo App - About</title>
+      <meta
+        name="description"
+        content="here is about kathabolo app page"
+      />
+      <meta
+        name="keywords"
+        content="kathabolo, chat app, talking app, messaging app, kathabolo beta, kathabolo netlify"
+      />
+      <meta name="author" content="Kathabolo Team" />
       <motion.h1
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
